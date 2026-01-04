@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>For My Favorite Person ❤️</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+      /* --- CSS VARIABLES & RESET --- */
+      :root {
+        --primary: #ff6b81;
+        --secondary: #ff9eb5;
+        --accent: #a29bfe;
+        --bg-color: #fff0f6;
+        --text-color: #2d3436;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Quicksand", sans-serif;
+        background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%);
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        overflow-x: hidden;
+        cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='%23ff6b81'><path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/></svg>"),
+          auto;
+      }
+
+      h1,
+      h2,
+      h3 {
+        font-family: "Dancing Script", cursive;
+      }
+      section {
+        padding: 60px 20px;
+      }
+
+      /* --- MUSIC OVERLAY (NEW) --- */
+      #music-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, #ff9eb5, #ff6b81);
+        z-index: 10000;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 1s ease;
+      }
+      .enter-btn {
+        padding: 20px 50px;
+        font-size: 2rem;
+        background: white;
+        color: var(--primary);
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        font-family: "Dancing Script", cursive;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        animation: pulse 2s infinite;
+      }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      /* --- FLOATING HEARTS BACKGROUND --- */
+      .heart-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+        overflow: hidden;
+      }
+      .heart {
+        position: absolute;
+        bottom: -100px;
+        background-color: rgba(255, 107, 129, 0.3);
+        width: 20px;
+        height: 20px;
+        transform: rotate(45deg);
+        animation: float 10s infinite linear;
+      }
+      .heart::before,
+      .heart::after {
+        content: "";
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        background-color: inherit;
+        border-radius: 50%;
+      }
+      .heart::before {
+        top: -10px;
+        left: 0;
+      }
+      .heart::after {
+        top: 0;
+        left: -10px;
+      }
+      @keyframes float {
+        0% {
+          transform: translateY(0) rotate(45deg);
+          opacity: 0;
+        }
+        20% {
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(-100vh) rotate(45deg);
+          opacity: 0;
+        }
+      }
+
+      /* --- MOUSE TRAIL --- */
+      .trail {
+        position: absolute;
+        height: 10px;
+        width: 10px;
+        border-radius: 50%;
+        background: var(--primary);
+        pointer-events: none;
+        animation: fadeOut 1s linear forwards;
+        z-index: 9999;
+      }
+      @keyframes fadeOut {
+        to {
+          opacity: 0;
+          transform: scale(0);
+        }
+      }
+
+      /* --- HERO SECTION --- */
+      .hero {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+      }
+      .hero h1 {
+        font-size: 4rem;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+      }
+      .typewriter {
+        font-size: 1.5rem;
+        color: #636e72;
+        min-height: 1.6em;
+      }
+      .scroll-down {
+        margin-top: 50px;
+        font-size: 2rem;
+        animation: bounce 2s infinite;
+        cursor: pointer;
+        color: var(--primary);
+      }
+
+      /* --- ENVELOPE SECTION --- */
+      /* --- ENVELOPE SECTION (UPDATED) --- */
+      .envelope-container {
+        /* Added huge top padding so when letter pops up, it stays on screen */
+        padding-top: 180px;
+        padding-bottom: 100px;
+        display: flex;
+        justify-content: center;
+        perspective: 1000px;
+      }
+
+      .envelope-wrapper {
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.3s;
+      }
+      .envelope-wrapper:hover {
+        transform: scale(1.02);
+      }
+
+      .envelope {
+        /* MADE BIGGER: Was 300px width / 200px height */
+        width: 400px;
+        height: 260px;
+        background: var(--primary);
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 0 0 10px 10px;
+        z-index: 2;
+      }
+
+      .envelope::before {
+        /* Flap */
+        content: "";
+        position: absolute;
+        top: 0;
+        width: 0;
+        height: 0;
+        /* Adjusted for new width (200px is half of 400px width) */
+        border-left: 200px solid transparent;
+        border-right: 200px solid transparent;
+        border-top: 140px solid #ff8fa3; /* Taller flap */
+        transform-origin: top;
+        transition: transform 0.6s;
+        z-index: 3;
+      }
+
+      .envelope.open::before {
+        transform: rotateX(180deg);
+        z-index: 0;
+      }
+
+      .letter {
+        position: absolute;
+        top: 10px;
+        /* MADE BIGGER to fit text */
+        width: 360px;
+        height: 380px; /* Taller letter */
+        background: white;
+        padding: 25px; /* More padding */
+        border-radius: 5px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transition: transform 0.6s, opacity 0.6s;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        opacity: 0;
+      }
+
+      /* Improved Font Styling inside Letter */
+      .letter h3 {
+        font-size: 2rem; /* Bigger Title */
+        margin-bottom: 15px;
+        color: var(--primary);
+      }
+      .letter p {
+        font-size: 1.15rem; /* Bigger Text */
+        line-height: 1.6;
+        margin-bottom: 10px;
+      }
+
+      /* Animation: Moves up higher now (-180px) because letter is taller */
+      .envelope.open .letter {
+        transform: translateY(-180px);
+        opacity: 1;
+        z-index: 4;
+      }
+
+      .sticker {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 4rem; /* Bigger sticker */
+        z-index: 4;
+        transition: opacity 0.3s;
+        pointer-events: none;
+      }
+      .envelope.open .sticker {
+        opacity: 0;
+      }
+
+      /* --- I MISS US SECTION --- */
+      .miss-us-section {
+        background: white;
+        margin: 60px auto;
+        max-width: 700px;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(255, 107, 129, 0.15);
+        text-align: center;
+        position: relative;
+      }
+      .miss-us-section h2 {
+        color: var(--accent);
+        font-size: 2.5rem;
+      }
+      .miss-us-section p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #555;
+      }
+      .floating-emoji {
+        position: absolute;
+        font-size: 2rem;
+        animation: float 6s infinite ease-in-out;
+      }
+
+      /* --- PHOTO GALLERY SECTION --- */
+      .gallery-section {
+        text-align: center;
+      }
+      .gallery-grid {
+        display: flex;
+        justify-content: center;
+        gap: 25px;
+        flex-wrap: wrap;
+        margin-top: 40px;
+      }
+      .photo-card {
+        background: white;
+        padding: 15px 15px 25px 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transform: rotate(-3deg);
+        transition: all 0.3s ease;
+        max-width: 220px;
+      }
+      .photo-card:nth-child(even) {
+        transform: rotate(3deg);
+      }
+      .photo-card:hover {
+        transform: rotate(0) scale(1.05) translateY(-10px);
+        z-index: 10;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+      }
+      .photo-frame-img {
+        width: 180px;
+        height: 180px;
+        object-fit: cover;
+        border: 3px solid #f0f0f0;
+      }
+      .photo-caption {
+        margin-top: 15px;
+        font-family: "Dancing Script", cursive;
+        font-size: 1.3rem;
+        color: var(--primary);
+      }
+
+      /* --- EXAM FLIP CARDS --- */
+      .exam-section {
+        text-align: center;
+      }
+      .cards-container {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        flex-wrap: wrap;
+        margin-top: 40px;
+      }
+      .flip-card {
+        width: 250px;
+        height: 300px;
+        perspective: 1000px;
+        cursor: pointer;
+      }
+      .flip-card-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 15px;
+      }
+      .flip-card.flipped .flip-card-inner {
+        transform: rotateY(180deg);
+      }
+      .flip-card-front,
+      .flip-card-back {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backface-visibility: hidden;
+        border-radius: 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+      .flip-card-front {
+        background: linear-gradient(to bottom right, #a18cd1, #fbc2eb);
+        color: white;
+      }
+      .flip-card-back {
+        background-color: white;
+        color: #333;
+        transform: rotateY(180deg);
+        border: 2px solid #fbc2eb;
+      }
+
+      /* --- FORGIVENESS GAME --- */
+      .game-section {
+        min-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        text-align: center;
+      }
+      .btn-group {
+        margin-top: 30px;
+        position: relative;
+        height: 100px;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+      }
+      .btn {
+        padding: 15px 40px;
+        font-size: 1.2rem;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: transform 0.2s;
+        font-family: "Quicksand", sans-serif;
+        font-weight: bold;
+      }
+      .btn-yes {
+        background-color: #2ecc71;
+        color: white;
+        box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+      }
+      .btn-no {
+        background-color: #ff7675;
+        color: white;
+        position: absolute;
+        transition: all 0.3s ease-out;
+      }
+
+      /* --- UTILS --- */
+      @keyframes bounce {
+        0%,
+        20%,
+        50%,
+        80%,
+        100% {
+          transform: translateY(0);
+        }
+        40% {
+          transform: translateY(-20px);
+        }
+        60% {
+          transform: translateY(-10px);
+        }
+      }
+      .hidden {
+        display: none;
+      }
+
+      @keyframes gradientText { 
+                to { background-position: 200% center; } 
+            }
+    </style>
+  </head>
+  <body>
+    <div id="music-overlay">
+      <h1 style="color: white; margin-bottom: 20px">For You DOLL ❤️</h1>
+      <button class="enter-btn" onclick="startExperience()">Tap to Open</button>
+      <p style="color: white; margin-top: 10px; opacity: 0.8">
+        (Turn up your volume)
+      </p>
+    </div>
+
+    <audio id="bg-music" loop>
+      <source src="song.mp3" type="audio/mpeg" />
+    </audio>
+
+    <div class="heart-bg" id="heart-bg"></div>
+
+    <section class="hero">
+      <h1>Hey, <span id="herName">My Love</span></h1>
+      <div class="typewriter" id="typing-text"></div>
+      <div
+        class="scroll-down"
+        onclick="document.getElementById('envelope-sect').scrollIntoView({behavior: 'smooth'})"
+      >
+        ⬇️
+      </div>
+    </section>
+
+    <section id="envelope-sect" class="envelope-container">
+      <div class="envelope-wrapper" onclick="toggleEnvelope()">
+        <div class="envelope" id="envelope">
+          <div class="sticker">💌</div>
+          <div class="letter">
+            <h3>I LOVE YOU...</h3>
+
+            <p>I know I have been distant lately, and I am sorry for that.</p>
+
+            <p>
+              I want this year to be <strong>your best year</strong> ❣️. I want
+              you to do what you feel and like the most.
+            </p>
+
+            <p>
+              Prepare for the
+              <span style="text-decoration: line-through; color: #aaa"
+                >war</span
+              >
+              <strong>exam</strong>. I am here for you, always. ❤️
+            </p>
+
+            <p style="margin-top: 5px; font-weight: bold">
+              You deserve all the
+              <span style="color: #ff6b81; font-size: 1.3rem">LOVE</span> in the
+              world.
+            </p>
+
+            <p style="color: #ccc; font-size: 0.8rem; margin-top: 10px">
+              (Click to close)
+            </p>
+          </div>
+        </div>
+        <p
+          style="text-align: center; margin-top: 20px; color: #aaa; width: 100%"
+        >
+          Click the envelope to open
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <div class="miss-us-section">
+        <span class="floating-emoji" style="top: -20px; left: 20px">🥺</span>
+        <span
+          class="floating-emoji"
+          style="bottom: -20px; right: 20px; animation-delay: 1s"
+          >💖</span
+        >
+        <h2>I Miss Us</h2>
+        <p>
+          I miss your laugh. I miss you fart jokes. I miss our talks. I miss you
+          angriness. I miss your touch. I miss you cuteness🫠. I miss playing with you 🍒🍑.  I miss just being near you without any stress.
+
+        </p>
+        <p>
+          I miss you… simply being you.
+        </p>
+      </div>
+    </section>
+
+    <section class="gallery-section">
+      <h2 style="font-size: 2.5rem; color: var(--accent)">Our Happy Moments</h2>
+      <p>Reminders of why we are worth it.</p>
+
+      <div class="gallery-grid">
+        <div class="photo-card">
+          <img
+            src="/remember.jpg"
+            alt="Us 1"
+            class="photo-frame-img"
+          />
+          <p class="photo-caption">Remember this?</p>
+        </div>
+        <div class="photo-card">
+          <img
+            src="/fav.jpg"
+            alt="Us 2"
+            class="photo-frame-img"
+          />
+          <p class="photo-caption">My favorite person.</p>
+        </div>
+        <div class="photo-card">
+          <img
+            src="/better.jpg"
+            alt="Us 3"
+            class="photo-frame-img"
+          />
+          <p class="photo-caption">Better times ahead.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="exam-section">
+      <h2 style="font-size: 2.5rem; margin-bottom: 10px;">Exam Power-Ups ⚡</h2>
+      <!-- <p style="color:#2ecc71; font-size: 30px;">GATE, NET, SET GOOOOOOOO - this is tough, but you are tougher.</p> -->
+       <div style="margin-bottom: 50px;">
+            <h2 style="
+                font-size: 2.8rem; 
+                margin-bottom: 15px; 
+                background: linear-gradient(45deg, #ff6b81, #ff9f43, #a29bfe); 
+                background-size: 200% auto;
+                -webkit-background-clip: text; 
+                -webkit-text-fill-color: transparent; 
+                animation: gradientText 3s linear infinite, pulse 2s infinite;
+                font-weight: 800;
+                letter-spacing: 1px;">
+                GATE, NET, SET <span style="font-style: italic;">----- GOOOOOOOO!</span> 🚀
+            </h2>
+            
+            <p style="font-size: 1.4rem; color: #636e72; font-weight: 600;">
+                This is <span style="color: #ff6b81; font-size: 1.8rem; text-decoration: underline wavy #ff9eb5;">TOUGH</span>., but <span style="color: #ff6b81; font-size: 1.8rem; text-decoration: underline wavy #ff9eb5;">YOU</span> are <span style="color: #ff6b81; font-size: 1.8rem; text-decoration: underline wavy #ff9eb5;">TOUGHER</span>.
+            </p>
+        </div>
+      <div class="cards-container">
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <span style="font-size: 3rem">😩</span>
+              <h3>"I'm Stressed"</h3>
+            </div>
+            <div class="flip-card-back">
+              <span style="font-size: 3rem">💪</span>
+              <h3>You are Strong!</h3>
+              <p>Stress is just growth. You've got this!</p>
+            </div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <span style="font-size: 3rem">⏳</span>
+              <h3>"Too much Syllabus"</h3>
+            </div>
+            <div class="flip-card-back">
+              <span style="font-size: 3rem">🎯</span>
+              <h3>Focus Mode</h3>
+              <p>One topic at a time. I believe in you.</p>
+            </div>
+          </div>
+        </div>
+        <div class="flip-card" onclick="this.classList.toggle('flipped')">
+          <div class="flip-card-inner">
+            <div class="flip-card-front">
+              <span style="font-size: 3rem">🧸</span>
+              <h3>"I Need a Break"</h3>
+            </div>
+            <div class="flip-card-back">
+              <span style="font-size: 3rem">☕</span>
+              <h3>I'm Here</h3>
+              <p>I'm here to listen or just sit quietly.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="game-section">
+      <h2>So... do you Love me? 🥺</h2>
+      <p>Please? I promise to be better.</p>
+      <div class="btn-group">
+        <button class="btn btn-yes" onclick="celebrate()">
+          Yes, I Love You! ❤️
+        </button>
+        <button
+          class="btn btn-no"
+          id="noBtn"
+          onmouseover="moveButton()"
+          onclick="moveButton()"
+        >
+          I hate you
+        </button>
+      </div>
+      <div
+        id="celebration-msg"
+        class="hidden"
+        style="
+          margin-top: 30px;
+          font-size: 1.5rem;
+          color: var(--primary);
+          font-weight: bold;
+        "
+      >
+        Yay! You are the best! 🎉 <br />
+        Check your Phone!
+      </div>
+    </section>
+
+    <script>
+      /* --- CONFIGURATION --- */
+      // [CHANGE THIS] Enter her name
+      const herName = "My Doll";
+      document.getElementById("herName").innerText = herName;
+
+      /* --- MUSIC START LOGIC --- */
+      function startExperience() {
+        // Play Music
+        var audio = document.getElementById("bg-music");
+        audio.volume = 0.5; // Set volume to 50%
+        audio.play().catch(function (error) {
+          console.log("Audio play failed: " + error);
+        });
+
+        // Hide Overlay
+        const overlay = document.getElementById("music-overlay");
+        overlay.style.opacity = "0";
+        setTimeout(() => {
+          overlay.style.display = "none";
+          typeWriter(); // Start typing effect only after opening
+        }, 1000);
+      }
+
+      /* --- HEARTS BG --- */
+      function createHearts() {
+        const container = document.getElementById("heart-bg");
+        for (let i = 0; i < 20; i++) {
+          const heart = document.createElement("div");
+          heart.classList.add("heart");
+          heart.style.left = Math.random() * 100 + "vw";
+          heart.style.animationDuration = Math.random() * 5 + 5 + "s";
+          heart.style.animationDelay = Math.random() * 5 + "s";
+          container.appendChild(heart);
+        }
+      }
+      createHearts();
+
+      /* --- TYPEWRITER --- */
+      const textToType =
+        "I keep messing up. But I want to make it right this year - 2026 💝 .";
+      const typeContainer = document.getElementById("typing-text");
+      let charIndex = 0;
+      function typeWriter() {
+        if (charIndex < textToType.length) {
+          typeContainer.innerHTML += textToType.charAt(charIndex);
+          charIndex++;
+          setTimeout(typeWriter, 100);
+        }
+      }
+
+      /* --- ENVELOPE --- */
+      function toggleEnvelope() {
+        document.getElementById("envelope").classList.toggle("open");
+      }
+
+      /* --- RUNAWAY BUTTON --- */
+      function moveButton() {
+        const btn = document.getElementById("noBtn");
+        const randomX = Math.random() * (window.innerWidth - 200);
+        const randomY = Math.random() * (window.innerHeight - 200);
+        btn.style.position = "fixed";
+        btn.style.left = randomX + "px";
+        btn.style.top = randomY + "px";
+      }
+
+      /* --- CELEBRATE --- */
+      function celebrate() {
+        document.querySelector(".btn-group").style.display = "none";
+        const msg = document.getElementById("celebration-msg");
+        msg.classList.remove("hidden");
+        msg.innerHTML =
+          "Yay! I love you too " + herName + "! 💖<br>Now go crush that exam! 📚🎓";
+
+        var duration = 3000;
+        var end = Date.now() + duration;
+        (function frame() {
+          confetti({
+            particleCount: 5,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 },
+            colors: ["#ff6b81", "#ff9eb5", "#a29bfe"],
+          });
+          confetti({
+            particleCount: 5,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 },
+            colors: ["#ff6b81", "#ff9eb5", "#a29bfe"],
+          });
+          if (Date.now() < end) {
+            requestAnimationFrame(frame);
+          }
+        })();
+      }
+
+      /* --- TRAIL --- */
+      document.addEventListener("mousemove", function (e) {
+        const trail = document.createElement("div");
+        trail.classList.add("trail");
+        trail.style.left = e.pageX + "px";
+        trail.style.top = e.pageY + "px";
+        document.body.appendChild(trail);
+        setTimeout(() => {
+          trail.remove();
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>
